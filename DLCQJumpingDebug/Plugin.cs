@@ -86,10 +86,10 @@ namespace DLCQJumpingDebug
 
         static void Postfix(PhysicsObject ___physicsObject, float ___OFF_LEDGE_JUMP_TIME, float ___jumpTime, float __state, float dt)
         {
-            if (___jumpTime != __state || PatchState.playerInput.Jump)
+            if (___jumpTime != __state || PatchState.playerInput.Jump || ___physicsObject.OffGroundTime * 1000 > 17)
             {
-                _logger.LogMessage($"new: {(___jumpTime * 1000)/ PatchState.timeScale}, old + delta: {((__state + dt) * 1000) / PatchState.timeScale}");
-                _logger.LogMessage($"CanJump: {___physicsObject.OffGroundTime < ___OFF_LEDGE_JUMP_TIME}");
+                _logger.LogMessage($"new: {(___jumpTime * 1000)/ PatchState.timeScale}, old + delta: {((__state + dt) * 1000) / PatchState.timeScale}, OffGroundTime: {___physicsObject.OffGroundTime * 1000}");
+                _logger.LogMessage($"CanJump: {___physicsObject.OffGroundTime < ___OFF_LEDGE_JUMP_TIME}, IsAtCeiling: {___physicsObject.IsAtCeiling}");
                 if (PatchState.playerInput.Jump)
                 {
                     _logger.LogMessage($"Player is jumping");
