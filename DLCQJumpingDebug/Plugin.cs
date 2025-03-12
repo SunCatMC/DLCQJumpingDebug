@@ -9,7 +9,7 @@ using DLCLib;
 using DLCLib.Input;
 using DLCLib.Physics;
 using System;
-using System.Drawing.Printing;
+using Microsoft.Xna.Framework;
 
 namespace DLCQJumpingDebug
 {
@@ -77,19 +77,38 @@ namespace DLCQJumpingDebug
         {
             _logger = logger;
         }
-        static bool Prefix(Player __instance, float ___jumpTime, out float __state, float dt)
+        static bool Prefix(Player __instance, PhysicsObject ___physicsObject, float ___jumpTime, out float __state, float dt)
         {
             __state = ___jumpTime;
             PatchState.playerInput = __instance.PlayerInput;
+            float substepGravity = PhysicsManager.GRAVITY.Y * dt;
+            PatchState.preJumpYVelocity = ___physicsObject.Velocity.Y; //ignoring collision and ground
             return true;
         }
 
-        static void Postfix(PhysicsObject ___physicsObject, float ___OFF_LEDGE_JUMP_TIME, float ___jumpTime, float __state, float dt)
+        static void Postfix(PhysicsObject ___physicsObject, float ___OFF_LEDGE_JUMP_TIME, float ___JUMP_LAUNCH_VELOCITY, float ___MAX_JUMP_TIME, float ___JUMP_CONTROL_POWER, float ___jumpTime, float __state, float dt)
         {
-            if (___jumpTime != __state || PatchState.playerInput.Jump || ___physicsObject.OffGroundTime * 1000 > 17)
+            float substepGravity = PhysicsManager.GRAVITY.Y * dt;
+            float actualVelocity = ___physicsObject.Velocity.Y + substepGravity; //ignoring collision and ground
+            actualVelocity = Vector2.Clamp(new Vector2(0f, actualVelocity), -PatchState.MAX_VELOCITY, PatchState.MAX_VELOCITY).Y;
+            if (___jumpTime != __state || PatchState.playerInput.Jump || !___physicsObject.IsOnGround)
             {
+                if (___physicsObject.IsOnGround)
+                {
+                    PatchState.startingY = ___physicsObject.AABB.Center.Y;
+                    PatchState.prevFrameYVelocity = 0f;
+                }
                 _logger.LogMessage($"new: {(___jumpTime * 1000)/ PatchState.timeScale}, old + delta: {((__state + dt) * 1000) / PatchState.timeScale}, OffGroundTime: {___physicsObject.OffGroundTime * 1000}");
                 _logger.LogMessage($"CanJump: {___physicsObject.OffGroundTime < ___OFF_LEDGE_JUMP_TIME}, IsAtCeiling: {___physicsObject.IsAtCeiling}");
+                _logger.LogMessage($"Y delta: {___physicsObject.AABB.Center.Y - PatchState.startingY}, Y velocity: {actualVelocity}");
+                float jumpVelocity = ___JUMP_LAUNCH_VELOCITY * (1f - (float)Math.Pow(___jumpTime / ___MAX_JUMP_TIME, ___JUMP_CONTROL_POWER));
+                if (___jumpTime == 0f)
+                {
+                    jumpVelocity = 0f;
+                }
+                _logger.LogMessage($"jump Y velocity      : {jumpVelocity}");
+                _logger.LogMessage($"jump Y velocity delta: {jumpVelocity - PatchState.preJumpYVelocity}, substep gravity: {substepGravity}");
+                _logger.LogMessage($"player Y velocity delta: {actualVelocity - PatchState.prevFrameYVelocity}");
                 if (PatchState.playerInput.Jump)
                 {
                     _logger.LogMessage($"Player is jumping");
@@ -100,6 +119,7 @@ namespace DLCQJumpingDebug
                 }
                 _logger.LogMessage($"---");
             }
+            PatchState.prevFrameYVelocity = actualVelocity;
             if (PatchState.playerInput.Attack || PatchState.playerInput.Activate)
             {
                 _logger.LogMessage($"---");
@@ -118,9 +138,24 @@ namespace DLCQJumpingDebug
         }
     }
 
+    [HarmonyPatch(typeof(PhysicsManager))]
+    [HarmonyPatch(nameof(PhysicsManager.Step))]
+    public class PhysicsManagerPatch
+    {
+        static bool Prefix(Vector2 ___MAX_VELOCITY)
+        {
+            PatchState.MAX_VELOCITY = ___MAX_VELOCITY;
+            return true;
+        }
+    }
+
     public class PatchState
     {
         public static float timeScale = 0f;
         public static PlayerInput playerInput = PlayerInput.Empty;
+        public static float startingY = 0f;
+        public static float preJumpYVelocity = 0f;
+        public static float prevFrameYVelocity = 0f;
+        public static Vector2 MAX_VELOCITY = Vector2.One;
     }
 }
