@@ -6,12 +6,12 @@ Controls:
 
 Data format:
 ```
-new: 16,6667, old + delta: 16,6667, OffGroundTime: 33,33334
-CanJump: True, IsAtCeiling: False
-Y delta: -4,985001, Y velocity: -19,96279
-jump Y velocity      : -20,86279
-jump Y velocity delta: -21,76279, substep gravity: 0,9000018
-player Y velocity delta: -20,86279
+new: 50,0001, old + delta: 50,0001, OffGroundTime: 133,333344
+CanJump: False, IsAtCeiling: False
+Y delta: -5,38721848, Y velocity: -14,7429276
+jump Y velocity      : -15,6429291
+jump Y velocity delta: 1,12731171, substep gravity: 0,900001764
+player Y velocity delta: 2,02731133
 Player is jumping
 ---
 ```
