@@ -98,7 +98,7 @@ namespace DLCQJumpingDebug
                     PatchState.startingY = ___physicsObject.AABB.Center.Y;
                     PatchState.prevFrameYVelocity = 0f;
                 }
-                _logger.LogMessage($"new: {((___jumpTime * 1000)/ PatchState.timeScale).ToString("R")}, old + delta: {(((__state + dt) * 1000) / PatchState.timeScale).ToString("R")}, OffGroundTime: {(___physicsObject.OffGroundTime * 1000).ToString("R")}");
+                _logger.LogMessage($"new: {(___jumpTime/ PatchState.timeScale).ToString("R")}, old + delta: {(__state + dt / PatchState.timeScale).ToString("R")}, OffGroundTime: {(___physicsObject.OffGroundTime).ToString("R")}");
                 _logger.LogMessage($"CanJump: {___physicsObject.OffGroundTime < ___OFF_LEDGE_JUMP_TIME}, IsAtCeiling: {___physicsObject.IsAtCeiling}");
                 _logger.LogMessage($"Y delta: {(___physicsObject.AABB.Center.Y - PatchState.startingY).ToString("G9")}, Y velocity: {actualVelocity:G9}");
                 float jumpVelocity = ___JUMP_LAUNCH_VELOCITY * (1f - (float)Math.Pow(___jumpTime / ___MAX_JUMP_TIME, ___JUMP_CONTROL_POWER));
