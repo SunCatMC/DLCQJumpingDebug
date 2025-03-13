@@ -10,6 +10,9 @@ using DLCLib.Input;
 using DLCLib.Physics;
 using System;
 using Microsoft.Xna.Framework;
+using System.Text;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace DLCQJumpingDebug
 {
@@ -85,7 +88,6 @@ namespace DLCQJumpingDebug
             PatchState.preJumpYVelocity = ___physicsObject.Velocity.Y; //ignoring collision and ground
             return true;
         }
-
         static void Postfix(PhysicsObject ___physicsObject, float ___OFF_LEDGE_JUMP_TIME, float ___JUMP_LAUNCH_VELOCITY, float ___MAX_JUMP_TIME, float ___JUMP_CONTROL_POWER, float ___jumpTime, float __state, float dt)
         {
             float substepGravity = PhysicsManager.GRAVITY.Y * dt;
@@ -98,17 +100,20 @@ namespace DLCQJumpingDebug
                     PatchState.startingY = ___physicsObject.AABB.Center.Y;
                     PatchState.prevFrameYVelocity = 0f;
                 }
-                _logger.LogMessage($"new: {(___jumpTime/ PatchState.timeScale).ToString("R")}, old + delta: {(__state + dt / PatchState.timeScale).ToString("R")}, OffGroundTime: {(___physicsObject.OffGroundTime).ToString("R")}");
+                _logger.LogMessage($"new: {(___jumpTime / PatchState.timeScale).ToString("R")}, old + delta: {(__state + dt / PatchState.timeScale).ToString("R")}, OffGroundTime: {(___physicsObject.OffGroundTime).ToString("R")}");
+                _logger.LogMessage($"new: {PatchState.floatToBinaryRepr(___jumpTime / PatchState.timeScale)},");
+                _logger.LogMessage($"old + delta: {PatchState.floatToBinaryRepr(__state + dt / PatchState.timeScale)},");
+                _logger.LogMessage($"OffGroundTime: {PatchState.floatToBinaryRepr(___physicsObject.OffGroundTime)};");
                 _logger.LogMessage($"CanJump: {___physicsObject.OffGroundTime < ___OFF_LEDGE_JUMP_TIME}, IsAtCeiling: {___physicsObject.IsAtCeiling}");
-                _logger.LogMessage($"Y delta: {(___physicsObject.AABB.Center.Y - PatchState.startingY).ToString("G9")}, Y velocity: {actualVelocity:G9}");
+                _logger.LogMessage($"Y delta: {(___physicsObject.AABB.Center.Y - PatchState.startingY).ToString("R")}, Y velocity: {actualVelocity:R}");
                 float jumpVelocity = ___JUMP_LAUNCH_VELOCITY * (1f - (float)Math.Pow(___jumpTime / ___MAX_JUMP_TIME, ___JUMP_CONTROL_POWER));
                 if (___jumpTime == 0f)
                 {
                     jumpVelocity = 0f;
                 }
-                _logger.LogMessage($"jump Y velocity      : {jumpVelocity:G9}");
-                _logger.LogMessage($"jump Y velocity delta: {(jumpVelocity - PatchState.preJumpYVelocity).ToString("G9")}, substep gravity: {substepGravity.ToString("G9")}");
-                _logger.LogMessage($"player Y velocity delta: {(actualVelocity - PatchState.prevFrameYVelocity).ToString("G9")}");
+                _logger.LogMessage($"jump Y velocity      : {jumpVelocity:R}");
+                _logger.LogMessage($"jump Y velocity delta: {(jumpVelocity - PatchState.preJumpYVelocity).ToString("R")}, substep gravity: {substepGravity:R}");
+                _logger.LogMessage($"player Y velocity delta: {(actualVelocity - PatchState.prevFrameYVelocity).ToString("R")}");
                 if (PatchState.playerInput.Jump)
                 {
                     _logger.LogMessage($"Player is jumping");
@@ -157,5 +162,40 @@ namespace DLCQJumpingDebug
         public static float preJumpYVelocity = 0f;
         public static float prevFrameYVelocity = 0f;
         public static Vector2 MAX_VELOCITY = Vector2.One;
+
+        public static string floatToBinaryRepr(float num)
+        {
+            StringBuilder sb = new();
+            StringBuilder sb1 = new();
+            IEnumerable<byte> bytes = BitConverter.GetBytes(num);
+            if (BitConverter.IsLittleEndian)
+            {
+                bytes = bytes.Reverse();
+            }
+            foreach (byte b in bytes)
+            {
+                byte bt = b;
+                byte power2 = 128;
+                do
+                {
+                    if (bt > power2)
+                    {
+                        sb1.Append(1);
+                        bt -= power2;
+                    }
+                    else
+                    {
+                        sb1.Append(0);
+                    }
+                    power2 /= 2;
+                }
+                while (power2 > 1);
+                sb.Append(sb1);
+                sb1.Clear();
+            }
+            sb.Insert(9, ',');
+            sb.Insert(1, ',');
+            return sb.ToString();
+        }
     }
 }
