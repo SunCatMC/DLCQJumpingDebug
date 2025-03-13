@@ -100,20 +100,20 @@ namespace DLCQJumpingDebug
                     PatchState.startingY = ___physicsObject.AABB.Center.Y;
                     PatchState.prevFrameYVelocity = 0f;
                 }
-                _logger.LogMessage($"new: {(___jumpTime / PatchState.timeScale).ToString("R")}, old + delta: {(__state + dt / PatchState.timeScale).ToString("R")}, OffGroundTime: {(___physicsObject.OffGroundTime).ToString("R")}");
+                _logger.LogMessage($"new: {___jumpTime / PatchState.timeScale:R}, old + delta: {__state + dt / PatchState.timeScale:R}, OffGroundTime: {___physicsObject.OffGroundTime:R}");
                 _logger.LogMessage($"new: {PatchState.floatToBinaryRepr(___jumpTime / PatchState.timeScale)},");
                 _logger.LogMessage($"old + delta: {PatchState.floatToBinaryRepr(__state + dt / PatchState.timeScale)},");
                 _logger.LogMessage($"OffGroundTime: {PatchState.floatToBinaryRepr(___physicsObject.OffGroundTime)};");
                 _logger.LogMessage($"CanJump: {___physicsObject.OffGroundTime < ___OFF_LEDGE_JUMP_TIME}, IsAtCeiling: {___physicsObject.IsAtCeiling}");
-                _logger.LogMessage($"Y delta: {(___physicsObject.AABB.Center.Y - PatchState.startingY).ToString("R")}, Y velocity: {actualVelocity:R}");
+                _logger.LogMessage($"Y delta: {___physicsObject.AABB.Center.Y - PatchState.startingY:R}, Y velocity: {actualVelocity:R}");
                 float jumpVelocity = ___JUMP_LAUNCH_VELOCITY * (1f - (float)Math.Pow(___jumpTime / ___MAX_JUMP_TIME, ___JUMP_CONTROL_POWER));
                 if (___jumpTime == 0f)
                 {
                     jumpVelocity = 0f;
                 }
                 _logger.LogMessage($"jump Y velocity      : {jumpVelocity:R}");
-                _logger.LogMessage($"jump Y velocity delta: {(jumpVelocity - PatchState.preJumpYVelocity).ToString("R")}, substep gravity: {substepGravity:R}");
-                _logger.LogMessage($"player Y velocity delta: {(actualVelocity - PatchState.prevFrameYVelocity).ToString("R")}");
+                _logger.LogMessage($"jump Y velocity delta: {jumpVelocity - PatchState.preJumpYVelocity:R}, substep gravity: {substepGravity:R}");
+                _logger.LogMessage($"player Y velocity delta: {actualVelocity - PatchState.prevFrameYVelocity:R}");
                 if (PatchState.playerInput.Jump)
                 {
                     _logger.LogMessage($"Player is jumping");
