@@ -15,9 +15,9 @@ Data format:
  Player is jumping
  ---
 ```
-- `new` and `old + delta` correspond to `jumpTime`, one after the function call, the other before, but adjusted to the change that is usually applied to get current time, represented by delta. In this debug tool it is basically used to show how long the current jump has been going, how physics frames look like, and when the jump time gets cleared or stays at 0 (which is the only time when these 2 values are different).
+- `new` and `old + delta` correspond to `jumpTime` in ms, one after the function call, the other before, but adjusted to the change that is usually applied to get current time, represented by delta. In this debug tool it is basically used to show how long the current jump has been going, how physics frames look like, and when the jump time gets cleared or stays at 0 (which is the only time when these 2 values are different).
 - `CanJump` is a function in-game that represents when coyote time is applied. The max length of coyote time is 125 ms, but can be lower a bit due to frame cutoff.
-- `OffGroundTime` and `IsAtCeiling` should be self explanatory.
+- `OffGroundTime` (in ms) and `IsAtCeiling` should be self explanatory.
 - `Y delta` is change in Y position of player compared to the start of the jump sequence, `Y velocity` is Y velocity of player.
 - `jump Y velocity` is the velocity that is being applied during a jump, `jump Y velocity delta` is a change in that velocity compared to previous frame, `substep gravity` is how much gravity is applied in current frame (doesn't change outside of slowed time).
 - `player Y velocity delta` is change in player Y velocity compared to previous frame.
