@@ -85,7 +85,6 @@ namespace DLCQJumpingDebug
             PatchState.preJumpYVelocity = ___physicsObject.Velocity.Y; //ignoring collision and ground
             return true;
         }
-
         static void Postfix(PhysicsObject ___physicsObject, float ___OFF_LEDGE_JUMP_TIME, float ___JUMP_LAUNCH_VELOCITY, float ___MAX_JUMP_TIME, float ___JUMP_CONTROL_POWER, float ___jumpTime, float __state, float dt)
         {
             float substepGravity = PhysicsManager.GRAVITY.Y * dt;
